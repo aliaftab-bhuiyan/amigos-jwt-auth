@@ -18,19 +18,23 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private static final String SECRET_KEY = "753778214125442A472D4B6150645367566B59703373367639792F423F4528482B4D6251655468576D5A7134743777217A25432646294A404E635266556A586E";
+
     public String extractUserEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractClaims(token);
         return claimsResolver.apply(claims);
     }
+
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
+
     public String generateToken(
-             Map<String, Objects> extraClaims,
-             UserDetails userDetails
+            Map<String, Objects> extraClaims,
+            UserDetails userDetails
     ) {
         return Jwts
                 .builder()
@@ -41,6 +45,7 @@ public class JwtService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String userEmail = extractUserEmail(token);
         return (userEmail.equals(userDetails.getUsername())) && !isTokenExpired(token);
@@ -62,6 +67,7 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
